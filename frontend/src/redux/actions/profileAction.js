@@ -7,6 +7,9 @@ import { createNotify, removeNotify } from '../actions/notifyAction'
 export const PROFILE_TYPES = {
     
     FOLLOW: 'FOLLOW',
+LOADING: 'LOADING_PROFILE',
+    GET_USER: 'GET_PROFILE_USER',
+    GET_USERS: 'GET_USERS',
 
 }
 
@@ -37,3 +40,23 @@ export const follow = ({users, user, auth, socket}) => async (dispatch) => {
         }
     })
 
+export const updateProfileUser = ({userData, avatar, auth}) => async (dispatch) => {
+    if(!userData.fullname)
+    return dispatch({type: GLOBALTYPES.ALERT, payload: {error: "Please add your full name."}})
+
+    if(userData.fullname.length > 25)
+    return dispatch({type: GLOBALTYPES.ALERT, payload: {error: "Your full name too long."}})
+
+    if(userData.story.length > 200)
+    return dispatch({type: GLOBALTYPES.ALERT, payload: {error: "Your story too long."}})
+
+    try {
+        let media;
+        dispatch({type: GLOBALTYPES.ALERT, payload: {loading: true}})
+
+        if(avatar) media = await imageUpload([avatar])
+
+        const res = await patchDataAPI("user", {
+            ...userData,
+            avatar: avatar ? media[0].url : auth.user.avatar
+        }, auth.token)
