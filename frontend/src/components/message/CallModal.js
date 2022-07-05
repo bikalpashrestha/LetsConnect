@@ -90,6 +90,102 @@ const CallModal = () => {
     },[socket, dispatch, tracks, addCallMessage, newCall])
 
 
-   
+    // Stream Media
+    const openStream = (video) => {
+        const config = { audio: true, video }
+        return navigator.mediaDevices.getUserMedia(config)
+    }
+
+    const playStream = (tag, stream) => {
+        let video = tag;
+        video.srcObject = stream;
+        video.play()
+    }
+
+    // Answer Call
+    const handleAnswer = () => {
+        openStream(call.video).then(stream => {
+            playStream(youVideo.current, stream)
+            const track = stream.getTracks()
+            setTracks(track)
+            
+            const newCall = peer.call(call.peerId, stream);
+            newCall.on('stream', function(remoteStream) {
+                playStream(otherVideo.current, remoteStream)
+            });
+            setAnswer(true)
+            setNewCall(newCall)
+        })
+    }
+
+    useEffect(() => {
+        peer.on('call', newCall => {
+            openStream(call.video).then(stream => {
+                if(youVideo.current){
+                    playStream(youVideo.current, stream)
+                }
+                const track = stream.getTracks()
+                setTracks(track)
+                
+                newCall.answer(stream)
+                newCall.on('stream', function(remoteStream) {
+                    if(otherVideo.current){
+                        playStream(otherVideo.current, remoteStream)
+                    }
+                });
+                setAnswer(true) 
+                setNewCall(newCall)
+            })
+        })
+        return () => peer.removeListener('call')
+    },[peer, call.video])
+
+    // Disconnect
+    useEffect(() => {
+        socket.on('callerDisconnect', () => {
+            tracks && tracks.forEach(track => track.stop())
+            if(newCall) newCall.close()
+            let times = answer ? total : 0
+            addCallMessage(call, times, true)
+
+            dispatch({type: GLOBALTYPES.CALL, payload: null })
+
+            dispatch({
+                type: GLOBALTYPES.ALERT, 
+                payload: {error: `The ${call.username} disconnect`} 
+            })
+        })
+
+        return () => socket.off('callerDisconnect')
+    },[socket, tracks, dispatch, call, addCallMessage, answer, total, newCall])
+
+    
+
+            <div className="show_video" style={{
+                opacity: (answer && call.video) ? '1' : '0',
+                filter: theme ? 'invert(1)' : 'invert(0)'
+            }} >
+
+                <video ref={youVideo} className="you_video" playsInline muted />
+                <video ref={otherVideo} className="other_video" playsInline />
+
+                <div className="time_video">
+                    <span>{ hours.toString().length < 2 ? '0' + hours : hours }</span>
+                    <span>:</span>
+                    <span>{ mins.toString().length < 2 ? '0' + mins : mins }</span>
+                    <span>:</span>
+                    <span>{ second.toString().length < 2 ? '0' + second : second }</span>
+                </div>
+
+                <button className="material-icons text-danger end_call"
+                onClick={handleEndCall}>
+                    call_end
+                </button>
+
+            </div>
+
+        </div>
+    )
+}
 
 export default CallModal
