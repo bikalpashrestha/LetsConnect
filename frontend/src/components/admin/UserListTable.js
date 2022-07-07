@@ -40,6 +40,54 @@ const UserListTable = ({users}) => {
 
     ]
 
-   
+    const userList = users?.map((item, index) => {
+        return {
+            id: index + 1,
+            fullname: item.fullname,
+            username: item.username,
+            avatar: item.avatar,
+            email: item.email,
+            address: item.address ? item.address + ", Nepal" : 'N/A',
+            phone: item.phone,
+            registerdAt: moment(item.createdAt).format('Do MMMM YYYY, h:mm:ss a'),
+            role: item.role,
+          
+        }
+    })
+ 
+    return (
+        <>
+            <div className="container-fluid" style={{
+            }} >
+                <DataGrid style={{ height: "90vh", width: "100%" }}
+                    sx={{
+                        boxShadow: 2,
+                        '& .MuiDataGrid-cell:hover': {
+                            color: 'primary.main',
+                            cursor: 'pointer',
+
+                        },
+                        "& .MuiDataGrid-columnHeaderTitle": {
+                            fontSize: 15,
+                            letterSpacing: '0.5px',
+                            fontWeight: '500',
+                        },
+                    }}
+                    pagination
+                    rows={userList}
+                    columns={columns}
+                    pageSize={10}
+                    rowsPerPageOptions={[5, 10, 20, 50, 100]}
+                    checkboxSelection
+                    rowHeight={100}
+                    components={{
+                        Toolbar: CustomToolbar,
+                        Pagination: CustomPagination,
+                    }}
+                />
+            </div>
+        </>
+    )
+}
 
 export default UserListTable
