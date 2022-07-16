@@ -1,9 +1,27 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import avatar from "../images/avatar.png"
+import { logout } from '../redux/actions/authAction'
+import { useSelector, useDispatch } from 'react-redux'
+import { getAllUsers } from '../redux/actions/profileAction'
+import { getComments } from '../redux/actions/postAction'
+import UserListTable from '../components/admin/UserListTable'
 
 const Dashboard = () => {
     const { user, token } = useSelector(state => state.auth)
-    
+    const homePosts = useSelector(state => state.homePosts)
+    const { users } = useSelector(state => state.profile)
+
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(getAllUsers({ token }))
+    }, [dispatch, token])
+
+    useEffect(() => {
+        dispatch(getComments({ token }))
+    }, [dispatch, token])
+
     return (
         <>
             <div className="sidebar">
@@ -11,7 +29,14 @@ const Dashboard = () => {
                     <h1><span className="lab la-accusoft"> </span> Admin </h1>
                 </div>
 
-                
+                <div className="sidebar-menu">
+                    <ul>
+                        <li><Link to="/" className="active"> <span className="las la-igloo"></span>
+                            <span>Dashboard</span></Link>
+                        </li>
+
+                    </ul>
+                </div>
 
             </div>
 
@@ -29,7 +54,27 @@ const Dashboard = () => {
                         <span className="las la-search"></span>
                         <input type="search" placeholder="search here" />
                     </div>
-            
+
+                    <div className="user-wrapper">
+                        <img src={user?.avatar ? user?.avatar : avatar} width="30px" height="30px" alt="tchjdfk" />
+                        <div>
+                            <h4>{user?.username}</h4>
+                            <small>Super admin</small>
+                            
+
+                            {/* clogout */}
+                <div className="dropdown-divider"></div>
+                <Link className="dropdown-item" to="/"
+                    onClick={() => dispatch(logout())}>
+                        Logout
+                    </Link>
+                        </div>
+                    </div>
+                
+                    
+                        
+                        
+                    
                 </header>
 
                 <main>
