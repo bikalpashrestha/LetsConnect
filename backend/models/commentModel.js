@@ -6,6 +6,7 @@ const commentSchema = new mongoose.Schema({
     },
     tag: Object,
     reply: mongoose.Types.ObjectId,
+
     postId: mongoose.Types.ObjectId,
     postUserId: mongoose.Types.ObjectId
 }, {
