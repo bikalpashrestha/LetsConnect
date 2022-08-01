@@ -8,7 +8,4 @@ router.route('/posts')
 
 
 
-router.get('/post_discover', auth, postCtrl.getPostsDicover)
-
-
 module.exports = router
