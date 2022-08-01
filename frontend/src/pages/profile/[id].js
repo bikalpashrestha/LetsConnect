@@ -23,6 +23,6 @@ const Profile = () => {
         }
     },[id, auth, dispatch, profile.ids])
 
-    
+
 
 export default Profile
